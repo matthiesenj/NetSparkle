@@ -140,41 +140,43 @@ namespace NetSparkle
         /// <returns><c>true</c> if the items were loaded</returns>
         private bool LoadValuesFromPath(string regPath)
         {
-            RegistryKey key = Registry.CurrentUser.OpenSubKey(regPath);
-            if (key == null)
-                return false;
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(regPath))
+            {
+                if (key == null)
+                    return false;
 
-            // read out                
-            string strCheckForUpdate = key.GetValue("CheckForUpdate", "True") as String;
-            string strLastCheckTime = key.GetValue("LastCheckTime", ConvertDateToString(new DateTime(0))) as String;
-            string strSkipThisVersion = key.GetValue("SkipThisVersion", "") as String;
-            string strDidRunOnc = key.GetValue("DidRunOnce", "False") as String;
-            string strShowDiagnosticWindow = key.GetValue("ShowDiagnosticWindow", "False") as String;
-            string strProfileTime = key.GetValue("LastProfileUpdate", ConvertDateToString(new DateTime(0))) as String;
+                // read out                
+                string strCheckForUpdate = key.GetValue("CheckForUpdate", "True") as String;
+                string strLastCheckTime = key.GetValue("LastCheckTime", ConvertDateToString(new DateTime(0))) as String;
+                string strSkipThisVersion = key.GetValue("SkipThisVersion", "") as String;
+                string strDidRunOnc = key.GetValue("DidRunOnce", "False") as String;
+                string strShowDiagnosticWindow = key.GetValue("ShowDiagnosticWindow", "False") as String;
+                string strProfileTime = key.GetValue("LastProfileUpdate", ConvertDateToString(new DateTime(0))) as String;
 
-            // convert the right datatypes
-            CheckForUpdate = Convert.ToBoolean(strCheckForUpdate);
-            try
-            {
-                LastCheckTime = ConvertStringToDate(strLastCheckTime);
-            }
-            catch (FormatException)
-            {
-                LastCheckTime = new DateTime(0);
-            }
+                // convert the right datatypes
+                CheckForUpdate = Convert.ToBoolean(strCheckForUpdate);
+                try
+                {
+                    LastCheckTime = ConvertStringToDate(strLastCheckTime);
+                }
+                catch (FormatException)
+                {
+                    LastCheckTime = new DateTime(0);
+                }
 
-            SkipThisVersion = strSkipThisVersion;
-            DidRunOnce = Convert.ToBoolean(strDidRunOnc);
-            ShowDiagnosticWindow = Convert.ToBoolean(strShowDiagnosticWindow);
-            try
-            {
-                LastProfileUpdate = ConvertStringToDate(strProfileTime);
+                SkipThisVersion = strSkipThisVersion;
+                DidRunOnce = Convert.ToBoolean(strDidRunOnc);
+                ShowDiagnosticWindow = Convert.ToBoolean(strShowDiagnosticWindow);
+                try
+                {
+                    LastProfileUpdate = ConvertStringToDate(strProfileTime);
+                }
+                catch (FormatException)
+                {
+                    LastProfileUpdate = new DateTime(0);
+                }
+                return true;
             }
-            catch (FormatException)
-            {
-                LastProfileUpdate = new DateTime(0);
-            }
-            return true;
         }
 
         /// <summary>
@@ -184,25 +186,27 @@ namespace NetSparkle
         /// <returns><c>true</c> if the values were saved to the registry</returns>
         private bool SaveValuesToPath(string regPath)
         {
-            RegistryKey key = Registry.CurrentUser.CreateSubKey(regPath);
-            if (key == null)
-                return false;
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey(regPath))
+            {
+                if (key == null)
+                    return false;
 
-            // convert to regsz
-            string strCheckForUpdate = CheckForUpdate.ToString();
-            string strLastCheckTime = ConvertDateToString(LastCheckTime);
-            string strSkipThisVersion = SkipThisVersion;
-            string strDidRunOnc = DidRunOnce.ToString();
-            string strProfileTime = ConvertDateToString(LastProfileUpdate);
+                // convert to regsz
+                string strCheckForUpdate = CheckForUpdate.ToString();
+                string strLastCheckTime = ConvertDateToString(LastCheckTime);
+                string strSkipThisVersion = SkipThisVersion;
+                string strDidRunOnc = DidRunOnce.ToString();
+                string strProfileTime = ConvertDateToString(LastProfileUpdate);
 
-            // set the values
-            key.SetValue("CheckForUpdate", strCheckForUpdate, RegistryValueKind.String);
-            key.SetValue("LastCheckTime", strLastCheckTime, RegistryValueKind.String);
-            key.SetValue("SkipThisVersion", strSkipThisVersion, RegistryValueKind.String);
-            key.SetValue("DidRunOnce", strDidRunOnc, RegistryValueKind.String);
-            key.SetValue("LastProfileUpdate", strProfileTime, RegistryValueKind.String);
+                // set the values
+                key.SetValue("CheckForUpdate", strCheckForUpdate, RegistryValueKind.String);
+                key.SetValue("LastCheckTime", strLastCheckTime, RegistryValueKind.String);
+                key.SetValue("SkipThisVersion", strSkipThisVersion, RegistryValueKind.String);
+                key.SetValue("DidRunOnce", strDidRunOnc, RegistryValueKind.String);
+                key.SetValue("LastProfileUpdate", strProfileTime, RegistryValueKind.String);
 
-            return true;
+                return true;
+            }
         }
     }
 }
